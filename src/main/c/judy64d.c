@@ -231,7 +231,7 @@ void judy_free (Judy *judy, void *block, int type)
 }
 		
 //	assemble key from current path
-
+#include "common.h"
 uint judy_key (Judy *judy, uchar *buff, uint max)
 {
 int slot, cnt, /*size, */off, type;
@@ -240,6 +240,8 @@ uchar *base;
 int keysize;
 
 	max--;		// leave room for zero terminator
+
+dprintf("original key: %s\n", buff);
 
 	while( len < max && ++idx <= judy->level ) {
 		slot = judy->stack[idx].slot;
@@ -280,6 +282,8 @@ int keysize;
 		}
 	}
 	buff[len] = 0;
+
+dprintf("modified key: %s\n", buff);
 	return len;
 }
 

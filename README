@@ -4,3 +4,9 @@ Judy array:
 
 Cherly:
   https://github.com/cliffmoon/cherly
+
+javac Jerly.java 
+java linh$ javah -jni Jerly
+
+cmake .
+make

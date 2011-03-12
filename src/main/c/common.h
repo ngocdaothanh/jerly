@@ -3,8 +3,7 @@
 
 #include <stdio.h>
 
-#define DEBUG
-
+//#define DEBUG
 #ifdef DEBUG
 
 #define WHERESTR  "[file %s, line %d]: "

@@ -58,36 +58,36 @@ typedef struct {
 } Judy;
 
 // open a new judy array returning a judy object.
-void *judy_open (uint max);
+void *judy_open(uint max);
 
 // close an open judy array, freeing all memory.
-void judy_close (Judy *judy);
+void judy_close(Judy *judy);
 
 // allocate data memory within judy array for external use.
-void *judy_data (Judy *judy, uint amt);
+void *judy_data(Judy *judy, uint amt);
 
 // insert a string into the judy array, return cell pointer.
-judyslot *judy_cell (Judy *judy, const uchar *buff, uint max);
+judyslot *judy_cell(Judy *judy, const uchar *buff, uint max);
 
 // retrieve the cell pointer greater than or equal to given key
-judyslot *judy_strt (Judy *judy, const uchar *buff, uint max);
+judyslot *judy_strt(Judy *judy, const uchar *buff, uint max);
 
 // retrieve the cell pointer, or return NULL for a given key.
-judyslot *judy_slot (Judy *judy, const uchar *buff, uint max);
+judyslot *judy_slot(Judy *judy, const uchar *buff, uint max);
 
 // retrieve the string value for the most recent judy query.
-uint judy_key (Judy *judy, uchar *buff, uint max);
+uint judy_key(Judy *judy, uchar *buff, uint max);
 
 // retrieve the cell pointer for the last string in the array.
-judyslot *judy_end (Judy *judy);
+judyslot *judy_end(Judy *judy);
 
 // retrieve the cell pointer for the next string in the array.
-judyslot *judy_nxt (Judy *judy);
+judyslot *judy_nxt(Judy *judy);
 
 // retrieve the cell pointer for the prev string in the array.
-judyslot *judy_prv (Judy *judy);
+judyslot *judy_prv(Judy *judy);
 
 // delete the key and cell for the current stack entry.
-judyslot *judy_del (Judy *judy);
+judyslot *judy_del(Judy *judy);
 
 #endif

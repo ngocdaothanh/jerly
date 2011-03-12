@@ -17,11 +17,11 @@ JNIEXPORT void JNICALL Java_Jerly_init
 
 /*
  * Class:     Jerly
- * Method:    get
- * Signature: (Ljava/lang/String;)[B
+ * Method:    destroy
+ * Signature: ()V
  */
-JNIEXPORT jbyteArray JNICALL Java_Jerly_get
-  (JNIEnv *, jobject, jstring);
+JNIEXPORT void JNICALL Java_Jerly_destroy
+  (JNIEnv *, jobject);
 
 /*
  * Class:     Jerly
@@ -33,19 +33,19 @@ JNIEXPORT void JNICALL Java_Jerly_put
 
 /*
  * Class:     Jerly
+ * Method:    get
+ * Signature: (Ljava/lang/String;)[B
+ */
+JNIEXPORT jbyteArray JNICALL Java_Jerly_get
+  (JNIEnv *, jobject, jstring);
+
+/*
+ * Class:     Jerly
  * Method:    remove
  * Signature: (Ljava/lang/String;)V
  */
 JNIEXPORT void JNICALL Java_Jerly_remove
   (JNIEnv *, jobject, jstring);
-
-/*
- * Class:     Jerly
- * Method:    destroy
- * Signature: ()V
- */
-JNIEXPORT void JNICALL Java_Jerly_destroy
-  (JNIEnv *, jobject);
 
 #ifdef __cplusplus
 }

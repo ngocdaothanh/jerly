@@ -68,10 +68,10 @@ void d_list_unshift(d_list_t *list, d_node_t *node) {
 }
 
 d_node_t * d_list_shift(d_list_t *list) {
+//  return NULL;
+  
   d_node_t * node = list->tail;
-  if (NULL == node) {
-    return NULL;
-  }
+  if (NULL == node) return NULL;
   
   list->tail = node->previous;
   list->size--;

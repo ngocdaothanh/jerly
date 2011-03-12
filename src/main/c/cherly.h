@@ -17,9 +17,9 @@ typedef struct _cherly_t {
 } cherly_t;
 
 void cherly_init(cherly_t *cherly, unsigned long max_size);
-void * cherly_get(cherly_t *cherly, const char * key, int length);
-void cherly_put(cherly_t *cherly, const char * key, int length, void *value, int size, DestroyCallback);
-void cherly_remove(cherly_t *cherly, const char * key, int length);
+void * cherly_get(cherly_t *cherly, const char *key, int length);
+void cherly_put(cherly_t *cherly, const char *key, int length, void *value, int size, DestroyCallback);
+void cherly_remove(cherly_t *cherly, const char *key, int length);
 void cherly_destroy(cherly_t *cherly);
 
 #endif
