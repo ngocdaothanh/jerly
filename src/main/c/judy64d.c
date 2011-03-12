@@ -12,19 +12,6 @@
 //	STANDALONE is defined to compile into a string sorter.
 //#define STANDALONE
 
-//	functions:
-//	judy_open:	open a new judy array returning a judy object.
-//	judy_close:	close an open judy array, freeing all memory.
-//	judy_data:	allocate data memory within judy array for external use.
-//	judy_cell:	insert a string into the judy array, return cell pointer.
-//	judy_strt:	retrieve the cell pointer greater than or equal to given key
-//	judy_slot:	retrieve the cell pointer, or return NULL for a given key.
-//	judy_key:	retrieve the string value for the most recent judy query.
-//	judy_end:	retrieve the cell pointer for the last string in the array.
-//	judy_nxt:	retrieve the cell pointer for the next string in the array.
-//	judy_prv:	retrieve the cell pointer for the prev string in the array.
-//	judy_del:	delete the key and cell for the current stack entry.
-
 #include <stdlib.h>
 #include <memory.h>
 #include "judy64d.h"
@@ -46,7 +33,6 @@
 	#endif
 #endif
 
-typedef unsigned char uchar;
 #define PRIuint			"u"
 
 #include <limits.h>  // CHAR_BIT is defined here
@@ -299,7 +285,7 @@ int keysize;
 
 //	find slot & setup cursor
 
-judyslot *judy_slot (Judy *judy, uchar *buff, uint max)
+judyslot *judy_slot (Judy *judy, const uchar *buff, uint max)
 {
 int slot, size, keysize, tst, cnt;
 judyslot next = *judy->root;
@@ -945,7 +931,7 @@ uchar *base;
 
 //	return cell for first key greater than or equal to given key
 
-judyslot *judy_strt (Judy *judy, uchar *buff, uint max)
+judyslot *judy_strt (Judy *judy, const uchar *buff, uint max)
 {
 judyslot *cell;
 
@@ -996,7 +982,7 @@ int i;
 
 //	judy_cell: add string to judy array
 
-judyslot *judy_cell (Judy *judy, uchar *buff, uint max)
+judyslot *judy_cell (Judy *judy, const uchar *buff, uint max)
 {
 int size, idx, slot, cnt, tst;
 judyslot *next = judy->root;
