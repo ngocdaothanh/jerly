@@ -20,6 +20,8 @@ typedef struct _lru_item_t {
   int keylen;
   void * value;
   int vallen;
+  int ttl;                  // Time to live, seconds
+  unsigned int touched_at;  // Seconds from Jan 1 1970
   d_node_t * node;
   DestroyCallback destroy;
 } lru_item_t;
@@ -33,7 +35,7 @@ typedef struct _lru_item_t {
 lru_t * lru_create();
 void lru_destroy(lru_t *lru);
 int lru_eject_by_size(lru_t *lru, int size, EjectionCallback cb, void * container);
-lru_item_t * lru_insert(lru_t *lru, char* key, int keylen, void * value, int size, DestroyCallback destroy);
+lru_item_t * lru_insert(lru_t *lru, char* key, int keylen, void * value, int size, int ttl, DestroyCallback destroy);
 void lru_touch(lru_t *lru, lru_item_t *item);
 void lru_remove_and_destroy(lru_t *lru, lru_item_t *item);
 

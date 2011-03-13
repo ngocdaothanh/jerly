@@ -1,7 +1,24 @@
+#include <time.h>
+
 #include "cherly.h"
 #include "common.h"
 
-static void cherly_eject_callback(cherly_t *cherly, const char *key, int length);
+static void cherly_eject_callback(cherly_t *cherly, const char *key, int length) {
+  judyslot *PValue;
+  lru_item_t *item;
+
+  PValue = judy_slot(cherly->judy, key, length);
+  if (NULL == PValue) return;
+
+  item = (lru_item_t *) *PValue;
+  if (NULL == item) return;
+
+  dprintf("cherly_eject_callback, key: %s\n", key);
+  cherly->items_length--;
+  cherly->size -= lru_item_size(item);
+
+  judy_del(cherly->judy);
+}
 
 void cherly_init(cherly_t *cherly, unsigned long max_size) {
   cherly->judy = judy_open(512);
@@ -13,7 +30,7 @@ void cherly_init(cherly_t *cherly, unsigned long max_size) {
 
 // node -> item -> value
 
-void cherly_put(cherly_t *cherly, const char *key, int length, void *value, int size, DestroyCallback destroy) {
+void cherly_put(cherly_t *cherly, const char *key, int length, void *value, int size, int ttl, DestroyCallback destroy) {
   judyslot *PValue;
   lru_item_t *item;
   
@@ -24,13 +41,15 @@ void cherly_put(cherly_t *cherly, const char *key, int length, void *value, int 
   PValue = judy_slot(cherly->judy, key, length);
   if (NULL != PValue) {
     item = (lru_item_t*) *PValue;
-    dprintf("removing an existing value\n");
-    cherly_remove(cherly, lru_item_key(item), lru_item_keylen(item));
+    if (NULL != item) {    
+      dprintf("removing an existing value\n");
+      cherly_remove(cherly, lru_item_key(item), lru_item_keylen(item));
+    }
   }
 
   dprintf("inserting with key: %s, vallen: %d\n", key, size);
 
-  item = lru_insert(cherly->lru, (char *) key, length, value, size, destroy);
+  item = lru_insert(cherly->lru, (char *) key, length, value, size, ttl, destroy);
   
   PValue = judy_cell(cherly->judy, key, length);
   *PValue = (judyslot) item;
@@ -48,32 +67,21 @@ void * cherly_get(cherly_t *cherly, const char *key, int length) {
 
   item = (lru_item_t *) *PValue;
   if (NULL == item) return NULL;
+
+  if (item->ttl > 0) {
+    int now = time(NULL);
+    if (now - item->touched_at > item->ttl) {
+      lru_remove_and_destroy(cherly->lru, item);
+      cherly->size -= lru_item_size(item);
+      cherly->items_length--;
     
+      judy_del(cherly->judy);
+      return NULL;
+    }
+  }
+
   lru_touch(cherly->lru, item);
   return lru_item_value(item);
-}
-
-static void cherly_eject_callback(cherly_t *cherly, const char *key, int length) {
-  judyslot *PValue;
-  lru_item_t *item;
-
-  PValue = judy_slot(cherly->judy, key, length);
-  if (NULL == PValue) {
-    dprintf("cherly_eject_callback, but key not found 1: %s\n", key);
-    return;
-  }
-
-  item = (lru_item_t *) *PValue;
-  if (NULL == item) {
-    dprintf("cherly_eject_callback, but key not found 2: %s\n", key);
-    return;
-  }
-
-  dprintf("cherly_eject_callback, key: %s\n", key);
-  cherly->items_length--;
-  cherly->size -= lru_item_size(item);
-
-  judy_del(cherly->judy);
 }
 
 void cherly_remove(cherly_t *cherly, const char *key, int length) {
@@ -83,14 +91,15 @@ void cherly_remove(cherly_t *cherly, const char *key, int length) {
   PValue = judy_slot(cherly->judy, key, length);
   if (NULL == PValue) return;
   
-  item = (lru_item_t *)*PValue;
+  item = (lru_item_t *) *PValue;
+  if (NULL == item) return;
+
   lru_remove_and_destroy(cherly->lru, item);
   cherly->size -= lru_item_size(item);
   cherly->items_length--;
+
   judy_del(cherly->judy);
 }
-
-
 
 void cherly_destroy(cherly_t *cherly) {
   dprintf("judy close\n");

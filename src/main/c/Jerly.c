@@ -5,13 +5,13 @@
 #include "cherly.h"
 #include "common.h"
 
-void destroy(char *key, int keylen, void *value, int vallen) {
+static void destroy(char *key, int keylen, void *value, int vallen) {
     dprintf("destroy key: %s, vallen: %d\n", key, vallen);
     free(key);
     free(value);
 }
 
-cherly_t * get_cherly(JNIEnv *env, jobject obj) {
+static cherly_t * get_cherly(JNIEnv *env, jobject obj) {
     jclass   cls    = (*env)->GetObjectClass(env, obj);
     jfieldID fid    = (*env)->GetFieldID(env, cls, "cherly", "J");
     jlong    cherly = (*env)->GetLongField(env, obj, fid);
@@ -27,7 +27,11 @@ JNIEXPORT void JNICALL Java_Jerly_init(JNIEnv *env, jobject obj, jlong maxSize) 
     (*env)->SetLongField(env, obj, fid, (jlong) cherly);
 }
 
-JNIEXPORT void JNICALL Java_Jerly_put(JNIEnv *env, jobject obj, jstring jkey, jbyteArray jbytes) {
+JNIEXPORT void JNICALL Java_Jerly_destroy(JNIEnv *env, jobject obj) {
+    cherly_destroy(get_cherly(env, obj));
+}
+
+JNIEXPORT void JNICALL Java_Jerly_put(JNIEnv *env, jobject obj, jstring jkey, jbyteArray jbytes, jint ttl) {
     jboolean iscopy;
     const char *ckey1 = (*env)->GetStringUTFChars(env, jkey, &iscopy);    
     
@@ -43,7 +47,7 @@ JNIEXPORT void JNICALL Java_Jerly_put(JNIEnv *env, jobject obj, jstring jkey, jb
     memcpy(value, &byteslen, sizeof(int));
     (*env)->GetByteArrayRegion(env, jbytes, 0, byteslen, value + sizeof(int));
     
-  	cherly_put(get_cherly(env, obj), ckey2, keylen, value, vallen, &destroy);
+  	cherly_put(get_cherly(env, obj), ckey2, keylen, value, vallen, ttl, &destroy);
   	(*env)->ReleaseStringUTFChars(env, jkey, ckey1);
 }
 
@@ -73,8 +77,4 @@ JNIEXPORT void JNICALL Java_Jerly_remove(JNIEnv *env, jobject obj, jstring jkey)
 
     cherly_remove(get_cherly(env, obj), ckey, strlen(ckey));    
     (*env)->ReleaseStringUTFChars(env, jkey, ckey);
-}
-
-JNIEXPORT void JNICALL Java_Jerly_destroy(JNIEnv *env, jobject obj) {
-    cherly_destroy(get_cherly(env, obj));
 }

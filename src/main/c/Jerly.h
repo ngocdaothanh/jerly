@@ -26,10 +26,10 @@ JNIEXPORT void JNICALL Java_Jerly_destroy
 /*
  * Class:     Jerly
  * Method:    put
- * Signature: (Ljava/lang/String;[B)V
+ * Signature: (Ljava/lang/String;[BI)V
  */
 JNIEXPORT void JNICALL Java_Jerly_put
-  (JNIEnv *, jobject, jstring, jbyteArray);
+  (JNIEnv *, jobject, jstring, jbyteArray, jint);
 
 /*
  * Class:     Jerly
