@@ -1,16 +1,34 @@
 public class Main {
+  private static int CACHE_SIZE = 502;
+  private static int N          = 1000000;
+  
   public static void main(String[] args) {
-    Jerly j = new Jerly(30);
- 
-    for (int i = 1; i < 10; i++) {
+    Jerly j = new Jerly(CACHE_SIZE);
+
+    long t1 = System.currentTimeMillis();
+
+    System.out.println("Put"); 
+    for (int i = 1; i < N; i++) {
       String k = "" + i;
-      j.put(k, k.getBytes());
+      String v = k;
+      j.put(k, v);
     }
 
-    for (int i = 1; i < 10; i++) {
+    long t2 = System.currentTimeMillis();
+    System.out.println((t2 - t1) + " [ms]");
+    
+    System.out.println("Get");
+    for (int i = 1; i < N; i++) {
       String k = "" + i;
-      byte[] bytes = j.get(k);
-      if (bytes != null) System.out.println(k + ": " + new String(bytes));
+      String v = j.getAs(k);
+
+      if (v != null) {
+        String s = new String(v);
+        if (!s.equals(k)) System.out.println(k + ": " + s);
+      }
     }
+    
+    long t3 = System.currentTimeMillis();
+    System.out.println((t3 - t2) + " [ms]");
   }
 }

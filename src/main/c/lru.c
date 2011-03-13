@@ -33,8 +33,6 @@ int lru_eject_by_size(lru_t *lru, int size, EjectionCallback eject, void *contai
   d_node_t *node;
   d_node_t *next;
   
-  dprintf("ejecting %d bytes\n", size);
-  
   while(ejected < size) {
     node = d_list_shift(lru->list);
     if (NULL == node) break;
