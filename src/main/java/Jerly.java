@@ -5,17 +5,32 @@ class Jerly {
         System.loadLibrary("jerly");
     }
 
-    protected long cherly;  // Set by init
+    private long cherly;  // Set by init
 
-    protected native void   init(long maxSize);
-    protected native void   destroy();
-    protected native void   put(String key, byte[] value);
-    protected native byte[] get(String key);
-    protected native void   remove(String key);
+    private native void   init(long maxSize);
+    private native void   destroy();
+    private native void   put(String key, byte[] value);
+    private native byte[] get(String key);
+    private native void   remove(String key);
+
+    //--------------------------------------------------------------------------
+    // Avoid having to create these objects all the time
+
+    private ByteArrayOutputStream bos = new ByteArrayOutputStream();
+    private ObjectOutputStream    out;
+
+    private ByteArrayInputStream bis = new ByteArrayInputStream(new byte[0]);
+    private ObjectInputStream    in;
 
     //--------------------------------------------------------------------------
     
-    public         Jerly(long maxSize) { init(maxSize); }
+    public Jerly(long maxSize) {
+        init(maxSize);
+        
+        try { out = new ObjectOutputStream(bos); } catch (Exception e) {}
+        try { in  = new ObjectInputStream(bis);  } catch (Exception e) {}
+    }
+
     protected void finalize()          { destroy();     }    
 
     //--------------------------------------------------------------------------
@@ -27,30 +42,30 @@ class Jerly {
     //--------------------------------------------------------------------------
     
     public synchronized void put(Object key, Serializable value) {
-        try {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            ObjectOutputStream    out = new ObjectOutputStream(bos);
+        try {            
             out.writeObject(value);
-            out.close();
-
             byte[] bytes = bos.toByteArray();
             put(key, bytes);
-            bos.close();
+
+            bos.reset();
+            out.reset();
         } catch (Exception e) {
         }
     }
+
+    //--------------------------------------------------------------------------
     
     public synchronized <T> T getAs(Object key) {
-        try {
+        try {          
             byte[] bytes = get(key);
-            ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
-            ObjectInputStream in = new ObjectInputStream(bis);
-
+            bis.read(bytes);
+            
             @SuppressWarnings("unchecked")
             T t = (T) in.readObject();
 
-            in.close();
-            bis.close();
+            bis.reset();
+            in.reset();
+
             return t;
         } catch (Exception e) {
             return null;
